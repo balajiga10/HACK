@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Data Table</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
+    <style>
+        
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(90deg, #4a5568, #2d3748);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        th:hover {
+            background: linear-gradient(90deg, #5a6788, #3d4758);
+            transform: scale(1.02);
+        }
+
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        tr {
+            transition: all 0.3s ease;
+        }
+
+        tr:hover {
+            background: #f0f7ff;
+            transform: scale(1.01);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        tr:hover td:first-child::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: #3b82f6;
+            animation: glow 1s ease infinite;
+        }
+
+        tbody tr {
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        tbody tr:nth-child(2) { animation-delay: 0.2s; }
+        tbody tr:nth-child(3) { animation-delay: 0.3s; }
+        tbody tr:nth-child(4) { animation-delay: 0.4s; }
+        tbody tr:nth-child(5) { animation-delay: 0.5s; }
+        tbody tr:nth-child(6) { animation-delay: 0.6s; }
+        tbody tr:nth-child(7) { animation-delay: 0.7s; }
+        tbody tr:nth-child(8) { animation-delay: 0.8s; }
+        tbody tr:nth-child(9) { animation-delay: 0.9s; }
+        tbody tr:nth-child(10) { animation-delay: 1.0s; }
+
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 8px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+            outline: none;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            border-radius: 20px;
+            padding: 5px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .dataTables_wrapper .dataTables_length select:hover {
+            border-color: #3b82f6;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border-radius: 50%;
+            margin: 0 5px;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #3b82f6;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .search-row th {
+            background: linear-gradient(90deg, #6b7280, #4b5563);
+            padding: 10px;
+        }
+
+        .search-row input, .search-row select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .search-row input:focus, .search-row select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+            outline: none;
+        }
+
+        #submissionTimeFilter {
+            cursor: pointer;
+        }
+        .cta-button {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #4a5568;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+    border: none;
+}
+
+.cta-button:hover {
+            background: linear-gradient(90deg, #1e40af, #172554);
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .range-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px 0;
+        }
+
+        .range-container input[type="range"] {
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        .range-value {
+            font-size: 12px;
+            color: #fff;
+            background: #3b82f6;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+
+        
+        .home-btn {
+            background: white;
+            color: #1e3a8a;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 15px;
+            }
+            
+            .dataTables_filter, .dataTables_length {
+                float: none;
+                text-align: left;
+                padding: 10px 0;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+
+            .search-row input, .search-row select {
+                font-size: 12px;
+                padding: 6px;
+            }
+
+            .range-value {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: rgb(236, 230, 235);"><center>INTERACTIVE DATA TABLE</center></h1>
+    <div class="container">
+        <table id="hackathonTable" class="display">
+            <thead>
+                <tr>
+                    <th>Team Name</th>
+                    <th>Project</th>
+                    <th>Category</th>
+                    <th>Score</th>
+                    <th>Members</th>
+                    <th>Submission Time</th>
+                    <th>Technology Stack</th>
+                    <th>Status</th>
+                </tr>
+                <tr class="search-row">
+                    <th><input type="text" placeholder="Search Team"></th>
+                    <th><input type="text" placeholder="Search Project"></th>
+                    <th><input type="text" placeholder="Search Category"></th>
+                    <th>
+                        <div class="range-container">
+                            <input type="range" id="scoreFilter" min="85" max="100" value="85">
+                            <span class="range-value" id="scoreValue">85</span>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="range-container">
+                            <input type="range" id="membersFilter" min="2" max="15" value="2">
+                            <span class="range-value" id="membersValue">2</span>
+                        </div>
+                    </th>
+                    <th><input type="text" id="submissionTimeFilter" placeholder="Pick a Date"></th>
+                    <th><input type="text" placeholder="Search Tech"></th>
+                    <th>
+                        <select id="statusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="Completed">Completed</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td>Code Ninjas</td>
+                    <td>AI Chatbot</td>
+                    <td>Artificial Intelligence</td>
+                    <td>92</td>
+                    <td>4</td>
+                    <td>2025-04-01 14:30</td>
+                    <td>Python, TensorFlow</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>Byte Busters</td>
+                    <td>Task Manager</td>
+                    <td>Productivity</td>
+                    <td>87</td>
+                    <td>3</td>
+                    <td>2025-04-01 15:45</td>
+                    <td>React, Node.js</td>
+                    <td>In Progress</td>
+                </tr>
+                <tr>
+                    <td>Pixel Pushers</td>
+                    <td>Game Engine</td>
+                    <td>Gaming</td>
+                    <td>95</td>
+                    <td>5</td>
+                    <td>2025-04-01 13:15</td>
+                    <td>Unity, C#</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>Data Dynamos</td>
+                    <td>Data Visualizer</td>
+                    <td>Data Science</td>
+                    <td>89</td>
+                    <td>4</td>
+                    <td>2025-04-01 16:00</td>
+                    <td>D3.js, Python</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>Cloud Crusaders</td>
+                    <td>Cloud Monitor</td>
+                    <td>Cloud Computing</td>
+                    <td>91</td>
+                    <td>6</td>
+                    <td>2025-04-01 14:45</td>
+                    <td>AWS, Java</td>
+                    <td>In Progress</td>
+                </tr>
+                <tr>
+                    <td>Web Wizards</td>
+                    <td>E-commerce Platform</td>
+                    <td>Web Development</td>
+                    <td>88</td>
+                    <td>3</td>
+                    <td>2025-04-01 15:30</td>
+                    <td>Vue.js, Django</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>Algo Avengers</td>
+                    <td>Sorting Visualizer</td>
+                    <td>Algorithms</td>
+                    <td>93</td>
+                    <td>5</td>
+                    <td>2025-04-01 13:45</td>
+                    <td>JavaScript, Rust</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>Mobile Mavericks</td>
+                    <td>Fitness App</td>
+                    <td>Mobile</td>
+                    <td>85</td>
+                    <td>4</td>
+                    <td>2025-04-01 16:15</td>
+                    <td>Flutter, Firebase</td>
+                    <td>In Progress</td>
+                </tr>
+                <tr>
+                    <td>Security Sentinels</td>
+                    <td>Encryption Tool</td>
+                    <td>Cybersecurity</td>
+                    <td>90</td>
+                    <td>3</td>
+                    <td>2025-04-01 14:00</td>
+                    <td>Go, OpenSSL</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>IoT Innovators</td>
+                    <td>Smart Home</td>
+                    <td>IoT</td>
+                    <td>94</td>
+                    <td>5</td>
+                    <td>2025-04-01 15:00</td>
+                    <td>Arduino, MQTT</td>
+                    <td>Completed</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        function generateHackathonData() {
+            const teams = ['Code', 'Byte', 'Pixel', 'Data', 'Cloud', 'Web', 'Algo', 'Mobile', 'Security', 'IoT'];
+            const suffixes = ['Ninjas', 'Busters', 'Pushers', 'Dynamos', 'Crusaders', 'Wizards', 'Avengers', 'Mavericks', 'Sentinels', 'Innovators'];
+            const projects = ['Chatbot', 'Manager', 'Engine', 'Visualizer', 'Monitor', 'Platform', 'Tool', 'App', 'System', 'Solution'];
+            const categories = ['AI', 'Productivity', 'Gaming', 'Data Science', 'Cloud Computing', 'Web Development', 'Algorithms', 'Mobile', 'Cybersecurity', 'IoT'];
+            const techStacks = ['Python, TensorFlow', 'React, Node.js', 'Unity, C#', 'D3.js, Python', 'AWS, Java', 'Vue.js, Django', 'JavaScript, Rust', 'Flutter, Firebase', 'Go, OpenSSL', 'Arduino, MQTT'];
+            const statuses = ['Completed', 'In Progress', 'Pending'];
+
+            const tbody = document.getElementById('tableBody');
+            const existingRows = 10; 
+
+            for (let i = existingRows; i < 100; i++) {
+                const teamName = `${teams[Math.floor(Math.random() * teams.length)]} ${suffixes[Math.floor(Math.random() * suffixes.length)]}`;
+                const project = `${projects[Math.floor(Math.random() * projects.length)]}${Math.floor(Math.random() * 100)}`;
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const score = Math.floor(Math.random() * 16) + 85; 
+                const members = Math.floor(Math.random() * 14) + 2; 
+                const submissionTime = `2025-04-01 ${String(Math.floor(Math.random() * 5) + 13).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`;
+                const techStack = techStacks[Math.floor(Math.random() * techStacks.length)];
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${teamName}</td>
+                    <td>${project}</td>
+                    <td>${category}</td>
+                    <td>${score}</td>
+                    <td>${members}</td>
+                    <td>${submissionTime}</td>
+                    <td>${techStack}</td>
+                    <td>${status}</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        $(document).ready(function() {
+            generateHackathonData();
+
+            var table = $('#hackathonTable').DataTable({
+                responsive: true,
+                searching: true,
+                ordering: true,
+                paging: true,
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50, 100],
+                language: {
+                    search: "Search :",
+                    lengthMenu: "Show _MENU_ entries"
+                },
+                columnDefs: [
+                    { 
+                        targets: 3,
+                        type: 'num'
+                    },
+                    { 
+                        targets: 4,
+                        type: 'num'
+                    },
+                    { 
+                        targets: 5, 
+                        type: 'date'
+                    }
+                ]
+            });
+
+            $('#submissionTimeFilter').datepicker({
+                dateFormat: 'yy-mm-dd', 
+                changeMonth: true,
+                changeYear: true,
+                onSelect: function(dateText) {
+                    table.column(5).search(dateText).draw();
+                }
+            });
+
+            $('.search-row input').not('#submissionTimeFilter, #scoreFilter, #membersFilter').on('keyup change', function() {
+                var columnIdx = $(this).parent().index();
+                table.column(columnIdx).search(this.value).draw();
+            });
+
+            $('#submissionTimeFilter').on('change', function() {
+                table.column(5).search(this.value).draw();
+            });
+
+            $('#statusFilter').on('change', function() {
+                var selectedStatus = $(this).val();
+                table.column(7).search(selectedStatus).draw();
+            });
+
+            var scoreSlider = $('#scoreFilter');
+            var scoreValue = $('#scoreValue');
+            scoreSlider.on('input change', function() {
+                scoreValue.text(this.value);
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var minScore = parseInt(scoreSlider.val(), 10);
+                        var score = parseInt(data[3], 10); 
+                        return score >= minScore;
+                    }
+                );
+                table.draw();
+                $.fn.dataTable.ext.search.pop();
+            });
+
+            var membersSlider = $('#membersFilter');
+            var membersValue = $('#membersValue');
+            membersSlider.on('input change', function() {
+                membersValue.text(this.value);
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var minMembers = parseInt(membersSlider.val(), 10);
+                        var members = parseInt(data[4], 10); 
+                        return members >= minMembers;
+                    }
+                );
+                table.draw();
+                $.fn.dataTable.ext.search.pop();
+            });
+        });
+    </script>
+    <body><center>
+        <a href="C:\Users\girias\OneDrive\Desktop\Thank you page.html" class="cta-button">Exit From The Data Table</a></center>
+    </body>
+</body>
+</html>
